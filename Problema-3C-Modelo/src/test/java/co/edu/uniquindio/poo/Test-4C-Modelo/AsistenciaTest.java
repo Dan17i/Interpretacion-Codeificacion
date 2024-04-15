@@ -1,5 +1,5 @@
 
-package co.edu.uniquindio.poo;
+package test.co.edu.uniquindio.poo;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
