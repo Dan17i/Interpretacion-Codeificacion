@@ -44,7 +44,7 @@ public class EstudianteTest2 {
         LOG.info("Finalización registrarClases");
     }
 
-    // TODO ¿Cómo hacer más cortos las siguientes pruebas?
+    // 
 
     /**
      * Prueba para verificar que se obtiene la lista de asistentes a una clase

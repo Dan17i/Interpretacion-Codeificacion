@@ -14,7 +14,10 @@ import java.time.LocalDateTime;
  */
 public record ClaseCurso(LocalDateTime fechaClase) {
 
-    public ClaseCurso {
-        assert fechaClase != null;
+    public ClaseCurso(LocalDateTime fechaClase) {
+        if (fechaClase == null) {
+            throw new IllegalArgumentException("La fecha de la clase no puede ser nula");
+        }
+        this.fechaClase = fechaClase;
     }
 } 

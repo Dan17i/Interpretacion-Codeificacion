@@ -1,9 +1,11 @@
 package co.edu.uniquindio.poo;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.function.Predicate;
+import java.util.List;
 
 /**
  * Registro que agrupa los datos de un Curso
@@ -26,7 +28,9 @@ public class Curso {
      * @param nombre Nombre del curso
      */
     public Curso(String nombre) {
-        assert nombre != null : "El nombre no puede ser nulo";
+        if (nombre == null) {
+            throw new IllegalArgumentException("El nombre del curso no puede ser nulo");
+        }
         this.nombre = nombre;
         estudiantes = new LinkedList<>();
         clases = new LinkedList<>();
@@ -47,11 +51,12 @@ public class Curso {
      * @param estudiante Estudiante que se desea agregar
      */
     public void agregarEstudiante(Estudiante estudiante) {
-        assert validarNumeroIdentificacionExiste(estudiante.getNumeroIdentificacion()) == false
-                : "El número de identificación ya existe.";
+        if (validarNumeroIdentificacionExiste(estudiante.getNumeroIdentificacion())) {
+            throw new IllegalArgumentException("El número de identificación ya existe.");
+        }
         estudiantes.add(estudiante);
     }
-
+ 
     /**
      * Método para buscar un estudiante dado el número de indicación
      * 
@@ -61,11 +66,17 @@ public class Curso {
     public Estudiante getEstudiante(String numeroIdenficacion) {
         Estudiante estudianteInteres = null;
 
-        for (Estudiante estudiante : estudiantes) {
+        Estudiante[] estudiantesArray = estudiantes.toArray(new Estudiante[estudiantes.size()]);
+        int index = 0;
+        while (index < estudiantesArray.length) {
+            Estudiante estudiante = estudiantesArray[index];
             if (estudiante.getNumeroIdentificacion().equals(numeroIdenficacion)) {
                 estudianteInteres = estudiante;
+                break;
             }
+            index++;
         }
+    
         return estudianteInteres;
     }
 
@@ -75,7 +86,8 @@ public class Curso {
      * @return la colección NO modificable de los estudiantes del curso
      */
     public Collection<Estudiante> getEstudiantes() {
-        return Collections.unmodifiableCollection(estudiantes);
+        List<Estudiante> estudiantesList = new ArrayList<>(estudiantes);
+        return estudiantesList;
     }
 
     /**
@@ -87,25 +99,39 @@ public class Curso {
      *         registrado.
      */
     private boolean validarNumeroIdentificacionExiste(String numeroIdentificacion) {
+        Estudiante[] estudiantesArray = estudiantes.toArray(new Estudiante[estudiantes.size()]);
         boolean existe = false;
 
-        for (Estudiante estudiante : estudiantes) {
-            if (estudiante.getNumeroIdentificacion().equals(numeroIdentificacion)) {
+        for (int i = 0; i < estudiantesArray.length; i++) {
+            if (estudiantesArray[i].getNumeroIdentificacion().equals(numeroIdentificacion)) {
                 existe = true;
+                break;
             }
         }
-
-        return existe;
+        return existe;  
     }
 
     /**
      * Método para programar (agregar) una clase a un curso.
-     * TODO evitar agregar más de una vez una misma clase.
+     *
      * 
      * @param claseCurso claseCurso que se desea programar
      */
     public void programarClase(ClaseCurso claseCurso) {
-        clases.add(claseCurso);
+        boolean existe = false;
+        Iterator<ClaseCurso> iterator = clases.iterator();
+    
+        while (iterator.hasNext()) {
+            ClaseCurso clase = iterator.next();
+            if (clase.equals(claseCurso)) {
+                existe = true;
+                break;
+            }
+        }
+    
+        if (!existe) {
+            clases.add(claseCurso);
+        }
     }
 
     /**
@@ -114,7 +140,15 @@ public class Curso {
      * @return la colección NO modificable de las clases del curso
      */
     public Collection<ClaseCurso> getClases() {
-        return Collections.unmodifiableCollection(clases);
+        List<ClaseCurso> clasesList = new ArrayList<>();
+        Iterator<ClaseCurso> iterator = clases.iterator();
+    
+        while (iterator.hasNext()) {
+            ClaseCurso clase = iterator.next();
+            clasesList.add(clase);
+        }
+    
+        return Collections.unmodifiableCollection(clasesList);
     }
 
     /**
@@ -124,9 +158,17 @@ public class Curso {
      * @return colección de los estudiantes que asistieron a una clase interés
      */
     public Collection<Estudiante> getAsistentes(ClaseCurso claseCurso) {
-        Predicate<Estudiante> asistioClase = j -> j.asistioClase(claseCurso);
-        var asistentes = estudiantes.stream().filter(asistioClase).toList();
-        return asistentes;
+    List<Estudiante> asistentes = new ArrayList<>();
+    Iterator<Estudiante> iterator = estudiantes.iterator();
+
+    while (iterator.hasNext()) {
+        Estudiante estudiante = iterator.next();
+        if (estudiante.asistioClase(claseCurso)) {
+            asistentes.add(estudiante);
+        }
+    }
+
+    return asistentes;
     }
 
     /**
@@ -138,18 +180,32 @@ public class Curso {
      *         interés
      */
     public Collection<Estudiante> getAusentes(ClaseCurso claseCurso) {
-        Predicate<Estudiante> asistioClase = j -> !j.asistioClase(claseCurso);
-        var asistentes = estudiantes.stream().filter(asistioClase).toList();
-        return asistentes;
+    List<Estudiante> ausentes = new ArrayList<>();
+    Iterator<Estudiante> iterator = estudiantes.iterator();
+
+    while (iterator.hasNext()) {
+        Estudiante estudiante = iterator.next();
+        if (!estudiante.asistioClase(claseCurso)) {
+            ausentes.add(estudiante);
+        }
+    }
+
+    return ausentes;
     }
 
 
     public double calcularPorcentajeAsistencia(ClaseCurso claseCurso) {
-        var cantidadEstudiantes = estudiantes.size();
-
-        Predicate<Estudiante> asistioClase = j -> j.asistioClase(claseCurso);
-        var cantidadAsistentes = estudiantes.stream().filter(asistioClase).count();
-
+        int cantidadEstudiantes = estudiantes.size();
+        int cantidadAsistentes = 0;
+        Iterator<Estudiante> iterator = estudiantes.iterator();
+    
+        while (iterator.hasNext()) {
+            Estudiante estudiante = iterator.next();
+            if (estudiante.asistioClase(claseCurso)) {
+                cantidadAsistentes++;
+            }
+        }
+    
         return (double) cantidadAsistentes / cantidadEstudiantes;
     }
 

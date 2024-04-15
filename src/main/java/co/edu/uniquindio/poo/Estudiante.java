@@ -1,9 +1,11 @@
 package co.edu.uniquindio.poo;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.function.Predicate;
+import java.util.List;
 
 /**
  * Clase para manejar la información de un Estudiante
@@ -37,8 +39,7 @@ public class Estudiante {
             int edad) {
         assert nombres != null && !nombres.isBlank() : "El nombre debe ser diferente de null";
         assert apellidos != null && !apellidos.isBlank() : "El apellido debe ser diferente de null";
-        assert numeroIdentificacion != null && !numeroIdentificacion.isBlank()
-                : "El número de identificación debe ser diferente de null";
+        assert numeroIdentificacion != null && !numeroIdentificacion.isBlank(): "El número de identificación debe ser diferente de null";
         assert correo != null && correo.contains("@") : "El correo electrónico debe contener el símbolo @";
         assert telefono != null : "El teléfono no puede ser null";
         assert edad > 0 : "La edad debe ser mayor a cero";
@@ -109,7 +110,7 @@ public class Estudiante {
 
     /**
      * Método para agregar una asistencia a un estudiante.
-     * TODO evitar agregar más de una vez una misma asistencia.
+     * 
      * 
      * @param asistencia asistencia del estudiante
      */
@@ -125,7 +126,17 @@ public class Estudiante {
      * @return colección no modificable de las asistencias.
      */
     public Collection<Asistencia> getAsistencias() {
-        return Collections.unmodifiableCollection(asistencias);
+        
+          List<Asistencia> asistenciasList = new ArrayList<>();
+          Iterator<Asistencia> iterator = asistencias.iterator();
+        
+          while (iterator.hasNext()) {
+                Asistencia asistencia = iterator.next();
+                asistenciasList.add(asistencia);
+           }
+        
+            return Collections.unmodifiableCollection(asistenciasList);
+        
     }
 
     /**
@@ -134,9 +145,16 @@ public class Estudiante {
      * @return
      */
     public boolean asistioClase(ClaseCurso claseCurso) {
-        Predicate<Asistencia> fechaIgual = j -> j.claseCurso().fechaClase().isEqual(claseCurso.fechaClase());
-        Predicate<Asistencia> asistioPresente = j -> j.tipoAsistencia() == TipoAsistencia.PRESENTE;
-        var asistencia = asistencias.stream().filter(fechaIgual.and(asistioPresente)).findAny();
-        return asistencia.isPresent();
+        Iterator<Asistencia> iterator = asistencias.iterator();
+
+        while (iterator.hasNext()) {
+            Asistencia asistencia = iterator.next();
+            if (asistencia.claseCurso().fechaClase().isEqual(claseCurso.fechaClase()) && asistencia.tipoAsistencia() == TipoAsistencia.PRESENTE) {
+                return true;
+            }
+        }
+    
+        return false;
+    
     }
 }

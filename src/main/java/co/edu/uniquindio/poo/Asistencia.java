@@ -12,6 +12,9 @@ package co.edu.uniquindio.poo;
 public record Asistencia(ClaseCurso claseCurso, TipoAsistencia tipoAsistencia) {
 
     public Asistencia {
-        assert claseCurso != null;
+        if (claseCurso == null) {
+            throw new IllegalArgumentException("La clase de curso no puede ser nula");
+        }
     }
+    
 }
